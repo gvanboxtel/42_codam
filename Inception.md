@@ -2,8 +2,6 @@
 
 # Inception
 
-> **Status:** in progress.
-
 ## Description
 
 Inception is a system administration project about **Docker**: build a small web infrastructure out of containers, each from a self-written Dockerfile, and run it with Docker Compose inside a virtual machine. Ready-made service images (such as the official `nginx`, `wordpress` or `mariadb` images) are not allowed, so every service is built from a plain base image and configured by hand.
@@ -31,7 +29,7 @@ The stack serves a WordPress site over HTTPS:
 | Service | Built from | Role |
 |---|---|---|
 | NGINX | `alpine:3.23` + `nginx`, `openssl` | TLS termination (TLSv1.3 only) and static files; forwards PHP requests to php-fpm |
-| WordPress | `alpine:3.23` + `php83-fpm`, WP-CLI | Runs WordPress; downloads it onto the volume on first start |
+| WordPress | `alpine:3.23` + `php83-fpm`, WP-CLI | Runs WordPress; downloads, configures and installs it on first start |
 | MariaDB | `alpine:3.23` + `mariadb` | The database, only reachable on the internal network |
 
 ## Instructions
@@ -58,7 +56,7 @@ The site is then reachable at `https://<login>.42.fr` (with the domain pointed t
 
 **One process per container, as PID 1.** Each container ends its entrypoint with `exec`, so the service (`nginx`, `php-fpm83`, `mariadbd`) becomes PID 1 and receives `SIGTERM` directly on `docker stop`. No `tail -f`, `sleep infinity` or other keep-alive hacks are used.
 
-**First-run initialisation.** The MariaDB entrypoint checks whether the data directory is already initialised. Only on the first start does it run `mariadb-install-db`, set the root password, and create the WordPress database and user; on later starts it goes straight to `exec mariadbd`. The data then lives on the volume, so it survives rebuilds.
+**First-run initialisation.** The MariaDB entrypoint checks whether the data directory is already initialised. Only on the first start does it run `mariadb-install-db`, set the root password, and create the WordPress database and user; on later starts it goes straight to `exec mariadbd`. The WordPress entrypoint works the same way: on the first start it uses WP-CLI to download WordPress onto the volume, write `wp-config.php` and install the site with an administrator and a regular user. The data then lives on the volumes, so it survives rebuilds.
 
 **Secrets, not environment variables, for passwords.** Passwords are passed as Docker secrets (`/run/secrets/...`) and read from file at startup. They never appear in a Dockerfile, an image layer or `docker inspect`.
 

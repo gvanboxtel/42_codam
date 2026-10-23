@@ -4,7 +4,7 @@
 
 ## Description
 
-Born2BeRoot is a system administration project: set up a minimal, hardened Linux server inside a virtual machine, following strict security rules. There is no code to hand in; the deliverable is a `signature.txt` with the SHA1 hash of the virtual disk, and the setup is checked live during the defence.
+Born2BeRoot is a system administration project: set up a minimal, hardened **Debian** server inside a virtual machine, following strict security rules. There is no code to hand in; the deliverable is a `signature.txt` with the SHA1 hash of the virtual disk, and the setup is checked live during the defence.
 
 No graphical interface is allowed, so everything is configured from the command line.
 
@@ -17,8 +17,8 @@ No graphical interface is allowed, so everything is configured from the command 
 ### Access
 
 - An **SSH** server on port **4242**, with root login over SSH disabled.
-- A **firewall** that is active at boot and leaves only port 4242 open.
-- A mandatory access control system running at boot (AppArmor on Debian, SELinux on Rocky).
+- **UFW** as firewall, active at boot and leaving only port 4242 open.
+- **AppArmor** running at boot.
 - The hostname is the login followed by `42`; a user with that login belongs to the `user42` and `sudo` groups.
 
 ### Password policy
@@ -55,6 +55,7 @@ A Bash script that broadcasts system information to all terminals with `wall` at
 ## What I learned
 
 - How a Linux system boots and how disks, partitions, LVM and encryption fit together.
+- Package management on Debian (`apt` versus `aptitude`) and what AppArmor does.
 - The difference between users, groups and privileges, and why `sudo` is preferred over logging in as root.
 - How PAM enforces a password policy, and how a firewall and SSH configuration limit what can reach a machine.
 - Writing a Bash script that gathers system information from `/proc`, `free`, `df`, `lsblk`, `ss`, `who` and the sudo log.
